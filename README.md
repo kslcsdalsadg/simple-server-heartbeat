@@ -27,8 +27,7 @@ Este parámetro es obligatorio.
 Tiempo (en segundos) a partir del cual se envía la notificación al canal de Telegram
 Este parámetro es obligatorio.
 
-<I>telegram_api_key</I>
-<I>telegram_chat_id</I>
+<I>telegram_api_key</I>, <I>telegram_chat_id</I>
 
 API Key e identificador del canal al cuál se envía el mensaje (https://core.telegram.org/api/obtaining_api_id).
 Estos parámetros son obligatorios si el valor de "method" es "PONG" y opcionales en el caso de que sea "PING".
@@ -37,9 +36,9 @@ Estos parámetros son obligatorios si el valor de "method" es "PONG" y opcionale
 
 El script envía hasta 2 tipos de notificaciones:
 
-1) Cuando se detecta que la máquina a controlar no ha ejecutado el script en el tiempo previsto (superior al especificado por el parámetro "grace_period")
+Cuando se detecta que la máquina a controlar no ha ejecutado el script en el tiempo previsto (superior al especificado por el parámetro "grace_period")
 
-2) (opcional) Cuando, tras haberse notificado que la máquina a controlar no había ejecutado el script en el tiempo previsto, ésta vuelve a ejecutar el script. 
+(opcional) Cuando, tras haberse notificado que la máquina a controlar no había ejecutado el script en el tiempo previsto, ésta vuelve a ejecutar el script. 
 
 <B>EJEMPLOS DE USO</B>
 
