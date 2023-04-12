@@ -45,7 +45,7 @@ Opcionlmente en el <I>PING</I>, cuando, tras haberse notificado que "A" no habí
 
 <B>Otras consideraciones</B>
 
-Para la ejecución del script de control (PONG), se puede usar el servicio gratuíto de https://cron-job.org, por ejemplo.
+Para la ejecución del script de control (<I>PONG</I>), se puede usar el servicio gratuíto de https://cron-job.org, por ejemplo.
 
 
 
