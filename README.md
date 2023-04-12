@@ -51,5 +51,9 @@ Cuando se detecta que la máquina a controlar no ha ejecutado el script en el ti
 
 /usr/bin/curl -X POST -d "method=PONG&domain=DOMAIN&telegram_api_key=API_KEY&telegram_chat_id=CHAT_ID" "https://XXXXX.com/php/heartbeat.php"
 
+<B>Otras consideraciones</B>
+
+Para la ejecución del script de control (PONG), se puede usar el servicio gratuíto de https://cron-job.org, por ejemplo.
+
 
 
