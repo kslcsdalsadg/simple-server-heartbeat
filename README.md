@@ -1,6 +1,6 @@
 <H1>simple-server-heartbeat</H1>
 
-Este script permite controlar si una máquina está funcionando y/o está conectada a Internet o no, permitiendo enviar un mensaje a un canal de Telegram en caso contrario.
+Este script permite controlar si una máquina o servicio está funcionando (y/o está conectada a Internet o no), permitiendo enviar un mensaje a un canal de Telegram en caso contrario.
 
 El script se aloja en un espacio web que no resida físicamente en la máquina a comprobar, por razones obvias.
 
