@@ -70,7 +70,7 @@
     
     $method = get_parameter('method');
     if (($method != 'PING') && ($method != 'PONG')) { exit('El valor del parámetro \'method\' no se acepta'); } 
-    $domain = get_parameter('domain', [ '/^(([a-z]|[a-z_][a-z0-9_\-]*[a-z0-9_])\.)*([a-z]|[a-z_][a-z0-9_\-]*[a-z0-9_])$/i', '/^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$/i' ]);
+    $domain = get_parameter('domain', [ '/^[a-z0-9:_\-\.]+$/i' ]);
     if ($method == 'PING')
     {
         $json_data = get_json_data();
