@@ -43,6 +43,8 @@ Opcionlmente en el <I>PING</I>, cuando, tras haberse notificado que "A" no habí
 
 /usr/bin/curl -X POST -d "method=PING&domain=DOMAIN&telegram_api_key=API_KEY&telegram_chat_id=CHAT_ID" "https://XXXXX.com/php/heartbeat.php"
 
+/usr/bin/curl -X POST -d "method=PING&domain=DOMAIN" "https://XXXXX.com/php/heartbeat.php"
+
 /usr/bin/curl -X POST -d "method=PONG&domain=DOMAIN&telegram_api_key=API_KEY&telegram_chat_id=CHAT_ID" "https://XXXXX.com/php/heartbeat.php"
 
 <B>Otras consideraciones</B>
