@@ -51,7 +51,7 @@
             }
             if (! $matches) 
             { 
-                exit(sprintf('El valor del parámetro \'%s\' no se acepta', $name)); 
+                exit(sprintf('El valor del parámetro \'%s\' es \'%s\' y no se acepta', $name, $value)); 
             }
         }
         return $value;
@@ -68,22 +68,28 @@
         return false;
     }
     
+    $now = now();
     $method = get_parameter('method');
     if (($method != 'PING') && ($method != 'PONG')) { exit('El valor del parámetro \'method\' no se acepta'); } 
     $domain = get_parameter('domain', [ '/^[a-z0-9:_\-\.]+$/i' ]);
     if ($method == 'PING')
     {
         $json_data = get_json_data();
-        if ((array_key_exists($domain, $json_data)) && (intval($json_data[$domain]) == 0))
+        if (array_key_exists($domain, $json_data))
         {
-            $telegram_api_key = get_parameter('telegram_api_key', [ '/^[a-z0-9:]+$/i' ], true);
-            $telegram_chat_id = get_parameter('telegram_chat_id', [ '/^\-[0-9]+$/' ], true);
-            if (($telegram_api_key) && ($telegram_chat_id)) 
+            $when = is_array($json_data[$domain]) ? $json_data[$domain]['when'] : $json_data[$domain];
+            if (intval($when) == 0)
             {
-                send_message($telegram_api_key, $telegram_chat_id, sprintf('%s vuelve a estar online', $domain));
+                $telegram_api_key = get_parameter('telegram_api_key', [ '/^[a-z0-9:]+$/i' ], true);
+                $telegram_chat_id = get_parameter('telegram_chat_id', [ '/^\-[0-9]+$/' ], true);
+                if (($telegram_api_key) && ($telegram_chat_id)) 
+                {
+                    send_message($telegram_api_key, $telegram_chat_id, sprintf('%s vuelve a estar online', $domain));
+                }
             }
         }
-        $json_data[$domain] = now();
+        $message = get_parameter('message', [ '/^[\w\s():%]+$/i' ], true);
+        $json_data[$domain] = $message ? array('when' => $now, 'message' => $message) : $now;
         set_json_data($json_data);
     }
     else
@@ -91,12 +97,21 @@
         $grace_period = intval(get_parameter('grace_period', [ '/^[0-9]+$/' ]));
         $json_data = get_json_data();
         $message = '';
-        $now = now();
-        if (! array_key_exists($domain, $json_data)) { $message = sprintf('%s nunca ha informado sobre su estado', $domain); }
+        if (! array_key_exists($domain, $json_data)) 
+        {
+            $message = sprintf('%s nunca ha informado sobre su estado', $domain); 
+        }
         else
         {
-            $json_data[$domain] = intval($json_data[$domain]);
-            if (($json_data[$domain] != 0) && ($json_data[$domain] + $grace_period < $now)) { $message = sprintf('El último ping de %s es de hace más de %d minutos', $domain, ($now - $json_data[$domain]) / 60); }
+            $when = is_array($json_data[$domain]) ? $json_data[$domain]['when'] : $json_data[$domain];
+            if (($when != 0) && ($when + $grace_period < $now)) 
+            { 
+                $message = sprintf('El último ping de %s es de hace más de %d minutos', $domain, ($now - $when) / 60); 
+                if ((is_array($json_data[$domain])) && ($json_data[$domain]['message']))
+                {
+                    $message .= "\n" + $json_data[$domain]['message'];
+                }
+            }
         }
         if (strlen($message) > 0)
         {

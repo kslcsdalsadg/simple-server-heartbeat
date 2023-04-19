@@ -31,6 +31,10 @@ Parámetro obligatorio que indica el tiempo (en segundos) a partir del cual se e
 API Key e identificador del canal al cuál se envía el mensaje (https://core.telegram.org/api/obtaining_api_id).
 Estos parámetros son obligatorios si el valor de "method" es <I>PONG</I> y opcionales en el caso de que sea <I>PING</I>.
 
+<I>message</I>
+
+Este parámetro (opcional para el modo <I>PING</I>) es un mensaje que se incluirá en el mensaje de Telegram en caso de fallo, y puede tomar cualquier valor, por ejemplo el nivel de batería del ordenador que realiza la llamada, etc.
+
 <B>NOTIFICACIONES</B>
 
 El script envía hasta 2 tipos de notificaciones:
