@@ -36,7 +36,7 @@
         }
         if ((! $value) && (! $allow_empty_value))
         {
-            exit(sprintf('El valor del parámetro \'%s\' no se acepta', $name)); 
+            exit(sprintf('El valor del parámetro \'%s\' no puede ser vacío', $name)); 
         }
         if (($value) && ($array_of_regexp != null))
         {
@@ -59,7 +59,7 @@
 
     function send_message($telegram_api_key, $telegram_chat_id, $message)
     {
-        $response = file_get_contents('https://api.telegram.org/bot' . $telegram_api_key . '/sendMessage?' . http_build_query([ 'chat_id' => $telegram_chat_id, 'text' => $message ]) );
+        $response = file_get_contents('https://api.telegram.org/bot' . $telegram_api_key . '/sendMessage?' . http_build_query([ 'chat_id' => $telegram_chat_id, 'text' => $message ]));
         if ($response)
         {
             $response = json_decode($response);
@@ -109,7 +109,7 @@
                 $message = sprintf('El último ping de %s es de hace más de %d minutos', $domain, ($now - $when) / 60); 
                 if ((is_array($json_data[$domain])) && ($json_data[$domain]['message']))
                 {
-                    $message .= "\n" + $json_data[$domain]['message'];
+                    $message .= sprintf("\n%s", $json_data[$domain]['message']);
                 }
             }
         }
@@ -122,6 +122,10 @@
             {
                 $json_data[$domain] = 0;
                 set_json_data($json_data);
+            }
+            else
+            {
+                exit("El mensaje no se pudo enviar");
             }
         }
     }
