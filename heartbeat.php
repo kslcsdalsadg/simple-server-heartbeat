@@ -115,7 +115,7 @@
         }
         if (strlen($message) > 0)
         {
-            $telegram_api_key = get_parameter('telegram_api_key', [ '/^[a-z0-9:]+$/i' ]);
+            $telegram_api_key = get_parameter('telegram_api_key', [ '/^[a-z0-9:_]+$/i' ]);
             $telegram_chat_id = get_parameter('telegram_chat_id', [ '/^\-[0-9]+$/' ]);
             $ok = send_message($telegram_api_key, $telegram_chat_id, $message);
             if ($ok) 
