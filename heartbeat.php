@@ -14,19 +14,17 @@
     function set_json_data($json_data) 
     {
         $attempt = 1;
-        $file = fopen($GLOBALS['file_pathname'], 'w');
         while ($attempt < 10)
         {
-            if (flock($file, LOCK_EX))
+            if (! file_put_contents($GLOBALS['file_pathname'], json_encode($json_data, JSON_PRETTY_PRINT), LOCK_EX)) 
             {
-                fwrite($file, json_encode($json_data, JSON_PRETTY_PRINT));
-                fflush($file);
-                flock($file, LOCK_UN);
-                break;
+                $attempt ++; 
+                sleep(1);
+                continue;
+                
             }
-            $attempt ++;
+            break;
         }
-        fclose($file);    
     }
     
     function now() 
