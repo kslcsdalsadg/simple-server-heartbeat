@@ -13,8 +13,18 @@
     
     function set_json_data($json_data) 
     {
+        $attempt = 1;
         $file = fopen($GLOBALS['file_pathname'], 'w');
-        fwrite($file, json_encode($json_data, JSON_PRETTY_PRINT));
+        while ($attempt < 10)
+        {
+            if (flock($file, LOCK_EX))
+            {
+                fwrite($file, json_encode($json_data, JSON_PRETTY_PRINT));
+                fflush($file);
+                flock($file, LOCK_UN);
+            }
+            $attempt ++;
+        }
         fclose($file);    
     }
     
