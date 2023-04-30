@@ -22,6 +22,7 @@
                 fwrite($file, json_encode($json_data, JSON_PRETTY_PRINT));
                 fflush($file);
                 flock($file, LOCK_UN);
+                break;
             }
             $attempt ++;
         }
