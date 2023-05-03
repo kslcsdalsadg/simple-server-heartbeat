@@ -89,7 +89,7 @@
             $when = is_array($json_data[$domain]) ? $json_data[$domain]['when'] : $json_data[$domain];
             if (intval($when) == 0)
             {
-                $telegram_api_key = get_parameter('telegram_api_key', [ '/^[a-z0-9:]+$/i' ], true);
+                $telegram_api_key = get_parameter('telegram_api_key', [ '/^[a-z0-9:_]+$/i' ], true);
                 $telegram_chat_id = get_parameter('telegram_chat_id', [ '/^\-[0-9]+$/' ], true);
                 if (($telegram_api_key) && ($telegram_chat_id)) 
                 {
