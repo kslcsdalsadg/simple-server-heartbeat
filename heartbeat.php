@@ -102,8 +102,8 @@
     {
         exit('El valor de los paràmetros no se acepta');
     }
-    $method = $parameters->method;
-    if (($method != 'PING') && ($method != 'PONG')) 
+    $method = $_SERVER['REQUEST_METHOD'];
+    if (($method != 'POST') && ($method != 'PUT')) 
     { 
         exit('El valor del parámetro \'method\' no se acepta'); 
     } 
@@ -119,7 +119,7 @@
             exit('El valor del parámetro \'domain\' no se acepta');
         }
         $name = check_parameter('domain-name', $domain->name, [ '/^[a-z0-9:_\-\.]+$/i' ]);
-        if ($method == 'PING')
+        if ($method == 'PUT')
         {
             $json_data = get_json_data();
             if (array_key_exists($name, $json_data))

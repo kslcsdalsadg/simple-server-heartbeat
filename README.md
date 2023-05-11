@@ -15,7 +15,8 @@ El funcionamiento es el siguiente:
 <I>method</I>
 
 Parámetro obligatorio que indica si estamos conectando desde la máquina "A" (<I>PING</I>) o desde la máquina "B" (<I>PONG</I>)
-Este parámetro es obligatorio.
+
+El valor de este parámetro se calcula implícitamente según el método HTTP utilizado (PUT para el PING, POST para el PONG)
 
 <I>domains</I>
 
