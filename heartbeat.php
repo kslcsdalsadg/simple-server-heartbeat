@@ -1,7 +1,7 @@
 <?php
 
     $GLOBALS['file_pathname'] = '.heartbeat.dat';
-    
+     
     function get_json_data() 
     {
         if (file_exists($GLOBALS['file_pathname'])) 
@@ -84,8 +84,8 @@
         $channels[0] = [ 'api-key' => get_parameter('telegram_api_key', [ '/^[a-z0-9:_]+$/i' ], true), 'chat-id' => get_parameter('telegram_chat_id', [ '/^\-[0-9]+$/' ], true) ];
         $additional_channels_count = get_parameter('additional_telegram_channels_count', [ '/^[0-9]+$/' ], true);
         if ($additional_channels_count) {
-            for ($i = 1; $i <= $additional_channels_count; $i ++) {
-                $channels[$i] = [ 'api-key' => get_parameter('additional_telegram_api_key_' + $i, [ '/^[a-z0-9:_]+$/i' ], true), 'chat-id' => get_parameter('additional_telegram_chat_id_' + $i, [ '/^\-[0-9]+$/' ], true) ];
+            for ($i = 1; $i <= intval($additional_channels_count); $i ++) {
+                $channels[$i] = [ 'api-key' => get_parameter(sprintf('additional_telegram_api_key_%d', $i), [ '/^[a-z0-9:_]+$/i' ], true), 'chat-id' => get_parameter(sprintf('additional_telegram_chat_id_%d', $i), [ '/^\-[0-9]+$/' ], true) ];
             }
         }
         foreach ($channels as $channel)
