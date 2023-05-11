@@ -32,17 +32,13 @@
         return date_timestamp_get(date_create());
     }
     
-    function get_parameter($name, $array_of_regexp = null, $allow_empty_value = false)
+    function parse_parameters() 
     {
-        $value = '';
-        if (array_key_exists($name, $_GET)) 
-        { 
-            $value = $_GET[$name]; 
-        }
-        else if (array_key_exists($name, $_POST)) 
-        { 
-            $value = $_POST[$name]; 
-        }
+        return json_decode(file_get_contents('php://input'));
+    }
+
+    function check_parameter($name, $value, $array_of_regexp = null, $allow_empty_value = false)
+    {
         if ((! $value) && (! $allow_empty_value))
         {
             exit(sprintf('El valor del parámetro \'%s\' no puede ser vacío', $name)); 
@@ -66,91 +62,115 @@
         return $value;
     }
 
-    function _send_message($telegram_api_key, $telegram_chat_id, $message)
+    function _send_message($channel, $message)
     {
-        $response = file_get_contents('https://api.telegram.org/bot' . $telegram_api_key . '/sendMessage?' . http_build_query([ 'chat_id' => $telegram_chat_id, 'text' => $message ]));
-        if ($response)
+        if (($channel->apiKey) && ($channel->chatId)) 
         {
-            $response = json_decode($response);
-            return $response->{'ok'};
+            $api_key = check_parameter('telegram-api-key', $channel->apiKey, [ '/^[a-z0-9:_]+$/i' ]);
+            $chat_id = check_parameter('telegram-chat-id', $channel->chatId, [ '/^\-[0-9]+$/' ]);
+            $response = file_get_contents('https://api.telegram.org/bot' . $api_key . '/sendMessage?' . http_build_query([ 'chat_id' => $chat_id, 'text' => $message ]));
+            if ($response)
+            {
+                $response = json_decode($response);
+                return $response->{'ok'};
+            }            
         }
         return false;
     }
     
-    function send_message($message) 
+    function send_message($channels, $message) 
     {
-        $ok = false;
-        $channels = array();
-        $channels[0] = [ 'api-key' => get_parameter('telegram_api_key', [ '/^[a-z0-9:_]+$/i' ], true), 'chat-id' => get_parameter('telegram_chat_id', [ '/^\-[0-9]+$/' ], true) ];
-        $additional_channels_count = get_parameter('additional_telegram_channels_count', [ '/^[0-9]+$/' ], true);
-        if ($additional_channels_count) {
-            for ($i = 1; $i <= intval($additional_channels_count); $i ++) {
-                $channels[$i] = [ 'api-key' => get_parameter(sprintf('additional_telegram_api_key_%d', $i), [ '/^[a-z0-9:_]+$/i' ], true), 'chat-id' => get_parameter(sprintf('additional_telegram_chat_id_%d', $i), [ '/^\-[0-9]+$/' ], true) ];
-            }
+        if (! is_array($channels))
+        {
+            exit('El valor del paràmetro \'channels\' no se acepta');
         }
+        $ok = false;
         foreach ($channels as $channel)
         {
-            if (($channel['api-key']) && ($channel['chat-id'])) 
+            if (! is_object($channel))
             {
-                $ok |= _send_message($channel['api-key'], $channel['chat-id'], $message);
+                exit('El valor del parámetro \'channel\' no se acepta');
             }
+            $ok |= _send_message($channel, $message);
         }
         return $ok;
     }
     
     $now = now();
-    $method = get_parameter('method');
-    if (($method != 'PING') && ($method != 'PONG')) { exit('El valor del parámetro \'method\' no se acepta'); } 
-    $domain = get_parameter('domain', [ '/^[a-z0-9:_\-\.]+$/i' ]);
-    if ($method == 'PING')
+    $parameters = parse_parameters();
+    if (! is_object($parameters))
     {
-        $json_data = get_json_data();
-        if (array_key_exists($domain, $json_data))
-        {
-            $when = is_array($json_data[$domain]) ? $json_data[$domain]['when'] : $json_data[$domain];
-            if (intval($when) == 0)
-            {
-                send_message(sprintf('%s vuelve a estar online', $domain));
-            }
-        }
-        $message = get_parameter('message', [ '/^[\w\s():%]+$/i' ], true);
-        $json_data[$domain] = $message ? array('when' => $now, 'message' => $message) : $now;
-        set_json_data($json_data);
+        exit('El valor de los paràmetros no se acepta');
     }
-    else
+    $method = $parameters->method;
+    if (($method != 'PING') && ($method != 'PONG')) 
+    { 
+        exit('El valor del parámetro \'method\' no se acepta'); 
+    } 
+    $domains = $parameters->domains;
+    if (! is_array($domains)) 
     {
-        $grace_period = intval(get_parameter('grace_period', [ '/^[0-9]+$/' ]));
-        $json_data = get_json_data();
-        $message = '';
-        if (! array_key_exists($domain, $json_data)) 
+        exit('El valor del paràmetro \'domains\' no se acepta');
+    }
+    foreach ($domains as $domain)
+    {
+        if (! is_object($domain))
         {
-            $message = sprintf('%s nunca ha informado sobre su estado', $domain); 
+            exit('El valor del parámetro \'domain\' no se acepta');
+        }
+        $name = check_parameter('domain-name', $domain->name, [ '/^[a-z0-9:_\-\.]+$/i' ]);
+        if ($method == 'PING')
+        {
+            $json_data = get_json_data();
+            if (array_key_exists($name, $json_data))
+            {
+                $when = is_array($json_data[$name]) ? $json_data[$name]['when'] : $json_data[$name];
+                if (intval($when) == 0)
+                {
+                    send_message($domain->channels, sprintf('%s vuelve a estar online', $name));
+                }
+            }
+            $message = check_parameter('message', $domain->message, [ '/^[\w\s():%]+$/i' ], true);
+            $json_data[$name] = $message ? array('when' => $now, 'message' => $message) : $now;
+            set_json_data($json_data);
         }
         else
         {
-            $when = is_array($json_data[$domain]) ? $json_data[$domain]['when'] : $json_data[$domain];
-            if (($when != 0) && ($when + $grace_period < $now)) 
-            { 
-                $message = sprintf('El último ping de %s es de hace más de %d minutos', $domain, ($now - $when) / 60); 
-                if ((is_array($json_data[$domain])) && ($json_data[$domain]['message']))
-                {
-                    $message .= sprintf("\n%s", $json_data[$domain]['message']);
-                }
-            }
-        }
-        if (strlen($message) > 0)
-        {
-            $ok = send_message($message);
-            if ($ok) 
+            $grace_period = intval(check_parameter('grace-period', $domain->gracePeriod, [ '/^[0-9]+$/' ]));
+
+            $json_data = get_json_data();
+            $message = '';
+            if (! array_key_exists($name, $json_data)) 
             {
-                $json_data[$domain] = 0;
-                set_json_data($json_data);
+                $message = sprintf('%s nunca ha informado sobre su estado', $name); 
             }
             else
             {
-                exit("El mensaje no se pudo enviar");
+                $when = intval(is_array($json_data[$name]) ? $json_data[$name]['when'] : $json_data[$name]);
+                if (($when != 0) && ($when + $grace_period < $now)) 
+                { 
+                    $message = sprintf('El último ping de %s es de hace más de %d minutos', $name, ($now - $when) / 60); 
+                    if ((is_array($json_data[$name])) && ($json_data[$name]['message']))
+                    {
+                        $message .= sprintf("\n%s", $json_data[$name]['message']);
+                    }
+                }
+            }
+            if (strlen($message) > 0)
+            {
+                $ok = send_message($domain->channels, $message);
+                if ($ok) 
+                {
+                    $json_data[$name] = 0;
+                    set_json_data($json_data);
+                }
+                else
+                {
+                    exit("El mensaje no se pudo enviar");
+                }
             }
         }
     }
     
 ?>
+
