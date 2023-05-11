@@ -100,7 +100,7 @@
     $parameters = parse_parameters();
     if (! is_object($parameters))
     {
-        exit('El valor de los paràmetros no se acepta');
+        exit('El valor de los paràmetros no se acepta (' . json_last_error() . ')');
     }
     $method = $_SERVER['REQUEST_METHOD'];
     if (($method != 'POST') && ($method != 'PUT')) 
@@ -137,7 +137,6 @@
         else
         {
             $grace_period = intval(check_parameter('grace-period', $domain->gracePeriod, [ '/^[0-9]+$/' ]));
-
             $json_data = get_json_data();
             $message = '';
             if (! array_key_exists($name, $json_data)) 
@@ -171,6 +170,7 @@
             }
         }
     }
+    exit(0);
     
 ?>
 
