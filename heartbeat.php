@@ -14,7 +14,7 @@
     function set_json_data($json_data) 
     {
         $attempt = 1;
-        while ($attempt < 10)
+        while ($attempt < 15)
         {
             if (! file_put_contents($GLOBALS['file_pathname'], json_encode($json_data, JSON_PRETTY_PRINT), LOCK_EX)) 
             {
@@ -66,7 +66,7 @@
         return $value;
     }
 
-    function send_message($telegram_api_key, $telegram_chat_id, $message)
+    function _send_message($telegram_api_key, $telegram_chat_id, $message)
     {
         $response = file_get_contents('https://api.telegram.org/bot' . $telegram_api_key . '/sendMessage?' . http_build_query([ 'chat_id' => $telegram_chat_id, 'text' => $message ]));
         if ($response)
@@ -75,6 +75,27 @@
             return $response->{'ok'};
         }
         return false;
+    }
+    
+    function send_message($message) 
+    {
+        $ok = false;
+        $channels = array();
+        $channels[0] = [ 'api-key' => get_parameter('telegram_api_key', [ '/^[a-z0-9:_]+$/i' ], true), 'chat-id' => get_parameter('telegram_chat_id', [ '/^\-[0-9]+$/' ], true) ];
+        $additional_channels_count = get_parameter('additional_telegram_channels_count', [ '/^[0-9]+$/' ], true);
+        if ($additional_channels_count) {
+            for ($i = 1; $i <= $additional_channels_count; $i ++) {
+                $channels[$i] = [ 'api-key' => get_parameter('additional_telegram_api_key_' + $i, [ '/^[a-z0-9:_]+$/i' ], true), 'chat-id' => get_parameter('additional_telegram_chat_id_' + $i, [ '/^\-[0-9]+$/' ], true) ];
+            }
+        }
+        foreach ($channels as $channel)
+        {
+            if (($channel['api-key']) && ($channel['chat-id'])) 
+            {
+                $ok |= _send_message($channel['api-key'], $channel['chat-id'], $message);
+            }
+        }
+        return $ok;
     }
     
     $now = now();
@@ -89,12 +110,7 @@
             $when = is_array($json_data[$domain]) ? $json_data[$domain]['when'] : $json_data[$domain];
             if (intval($when) == 0)
             {
-                $telegram_api_key = get_parameter('telegram_api_key', [ '/^[a-z0-9:_]+$/i' ], true);
-                $telegram_chat_id = get_parameter('telegram_chat_id', [ '/^\-[0-9]+$/' ], true);
-                if (($telegram_api_key) && ($telegram_chat_id)) 
-                {
-                    send_message($telegram_api_key, $telegram_chat_id, sprintf('%s vuelve a estar online', $domain));
-                }
+                send_message(sprintf('%s vuelve a estar online', $domain));
             }
         }
         $message = get_parameter('message', [ '/^[\w\s():%]+$/i' ], true);
@@ -124,9 +140,7 @@
         }
         if (strlen($message) > 0)
         {
-            $telegram_api_key = get_parameter('telegram_api_key', [ '/^[a-z0-9:_]+$/i' ]);
-            $telegram_chat_id = get_parameter('telegram_chat_id', [ '/^\-[0-9]+$/' ]);
-            $ok = send_message($telegram_api_key, $telegram_chat_id, $message);
+            $ok = send_message($message);
             if ($ok) 
             {
                 $json_data[$domain] = 0;
