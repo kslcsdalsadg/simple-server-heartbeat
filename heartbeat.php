@@ -127,7 +127,7 @@
                 $when = is_array($json_data[$name]) ? $json_data[$name]['when'] : $json_data[$name];
                 if (intval($when) == 0)
                 {
-                    send_message($domain->channels, sprintf('%s vuelve a estar online', $name));
+                    send_message($domain->channels, sprintf('%s vuelve a estar conectada a Internet', $name));
                 }
             }
             $message = check_parameter('message', $domain->message, [ '/^[\w\s():%]+$/i' ], true);
@@ -148,7 +148,7 @@
                 $when = intval(is_array($json_data[$name]) ? $json_data[$name]['when'] : $json_data[$name]);
                 if (($when != 0) && ($when + $grace_period < $now)) 
                 { 
-                    $message = sprintf('El último ping de %s es de hace más de %d minutos', $name, ($now - $when) / 60); 
+                    $message = sprintf('La última conexión de %s es de hace más de %d minutos', $name, ($now - $when) / 60); 
                     if ((is_array($json_data[$name])) && ($json_data[$name]['message']))
                     {
                         $message .= sprintf("\n%s", $json_data[$name]['message']);
