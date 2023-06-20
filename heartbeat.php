@@ -6,7 +6,20 @@
     {
         if (file_exists($GLOBALS['file_pathname'])) 
         { 
-            return json_decode(file_get_contents($GLOBALS['file_pathname']), true); 
+            try
+            {
+                if (filesize($GLOBALS['file_pathname']) == 0) 
+                {
+                    unlink($GLOBALS['file_pathname']);
+                }
+                else 
+                {
+                    return json_decode(file_get_contents($GLOBALS['file_pathname']), true); 
+                }
+            }
+            catch (Exception $e) 
+            {
+            }
         }
         return array();
     }
