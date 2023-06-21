@@ -47,7 +47,7 @@
     {
         if ((! $value) && (! $allow_empty_value))
         {
-            exit(sprintf('El valor del parámetro \'%s\' no puede ser vacío', $name)); 
+            exit(sprintf('El valor del parámetro "%s" no puede ser vacío', $name)); 
         }
         if (($value) && ($array_of_regexp != null))
         {
@@ -62,7 +62,7 @@
             }
             if (! $matches) 
             { 
-                exit(sprintf('El valor del parámetro \'%s\' es \'%s\' y no se acepta', $name, $value)); 
+                exit(sprintf('El valor del parámetro "%s" es "%s", que no se acepta', $name, $value)); 
             }
         }
         return $value;
@@ -88,14 +88,14 @@
     {
         if (! is_array($channels))
         {
-            exit('El valor del paràmetro \'channels\' no se acepta');
+            exit('El valor del paràmetro "channels" no se acepta');
         }
         $ok = false;
         foreach ($channels as $channel)
         {
             if (! is_object($channel))
             {
-                exit('El valor del parámetro \'channel\' no se acepta');
+                exit('El valor del parámetro "channel" no se acepta');
             }
             $ok |= _send_message($channel, $message);
         }
@@ -106,23 +106,23 @@
     $parameters = parse_parameters();
     if (! is_object($parameters))
     {
-        exit('El valor de los paràmetros no se acepta (' . json_last_error() . ')');
+        exit('El valor de los paràmetros no se acepta (error ' . json_last_error() . ')');
     }
     $method = $_SERVER['REQUEST_METHOD'];
     if (($method != 'POST') && ($method != 'PUT')) 
     { 
-        exit('El valor del parámetro \'method\' no se acepta'); 
+        exit('El valor del parámetro "method" no se acepta'); 
     } 
     $domains = $parameters->domains;
     if (! is_array($domains)) 
     {
-        exit('El valor del paràmetro \'domains\' no se acepta');
+        exit('El valor del paràmetro "domains" no se acepta');
     }
     foreach ($domains as $domain)
     {
         if (! is_object($domain))
         {
-            exit('El valor del parámetro \'domain\' no se acepta');
+            exit('El valor del parámetro "domain" no se acepta');
         }
         $name = check_parameter('domain-name', $domain->name, [ '/^[a-z0-9:_\-\.]+$/i' ]);
         if ($method == 'PUT')
@@ -154,7 +154,7 @@
                 $when = intval(is_array($json_data[$name]) ? $json_data[$name]['when'] : $json_data[$name]);
                 if (($when != 0) && ($when + $grace_period < $now)) 
                 { 
-                    $message = sprintf('La última conexión de %s es de hace más de %d minutos', $name, ($now - $when) / 60); 
+                    $message = sprintf('La última conexión de "%s" es de hace más de %d minutos', $name, ($now - $when) / 60); 
                     if ((is_array($json_data[$name])) && ($json_data[$name]['message']))
                     {
                         $message .= sprintf("\n%s", $json_data[$name]['message']);
