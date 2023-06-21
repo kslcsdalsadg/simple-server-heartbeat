@@ -26,17 +26,10 @@
     
     function set_json_data($json_data) 
     {
-        $attempt = 1;
-        while ($attempt < 15)
+        $temp_filename = $GLOBALS['file_pathname'] + '.' + strval(getmypid())
+        if (file_put_contents(temp_filename, json_encode($json_data, JSON_PRETTY_PRINT))) 
         {
-            if (! file_put_contents($GLOBALS['file_pathname'], json_encode($json_data, JSON_PRETTY_PRINT), LOCK_EX)) 
-            {
-                $attempt ++; 
-                sleep(1);
-                continue;
-                
-            }
-            break;
+            rename(temp_filename, $GLOBALS['file_pathname']);
         }
     }
     
