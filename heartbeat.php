@@ -26,7 +26,7 @@
     
     function set_json_data($json_data) 
     {
-        $temp_filename = $GLOBALS['file_pathname'] + '.' + strval(getmypid())
+        $temp_filename = $GLOBALS['file_pathname'] + '.' + strval(getmypid());
         if (file_put_contents(temp_filename, json_encode($json_data, JSON_PRETTY_PRINT))) 
         {
             rename(temp_filename, $GLOBALS['file_pathname']);
