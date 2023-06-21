@@ -26,10 +26,10 @@
     
     function set_json_data($json_data) 
     {
-        $temp_filename = $GLOBALS['file_pathname'] + '.' + strval(getmypid());
-        if (file_put_contents(temp_filename, json_encode($json_data, JSON_PRETTY_PRINT))) 
+        $temp_filename = sprintf('%s.%d', $GLOBALS['file_pathname'], getmypid());
+        if (file_put_contents($temp_filename, json_encode($json_data, JSON_PRETTY_PRINT))) 
         {
-            rename(temp_filename, $GLOBALS['file_pathname']);
+            rename($temp_filename, $GLOBALS['file_pathname']);
         }
     }
     
@@ -72,7 +72,7 @@
     {
         if (($channel->apiKey) && ($channel->chatId)) 
         {
-            $api_key = check_parameter('telegram-api-key', $channel->apiKey, [ '/^[a-z0-9:_]+$/i' ]);
+            $api_key = check_parameter('telegram-api-key', $channel->apiKey, [ '/^[a-z0-9:_\-]+$/i' ]);
             $chat_id = check_parameter('telegram-chat-id', $channel->chatId, [ '/^\-[0-9]+$/' ]);
             $response = file_get_contents('https://api.telegram.org/bot' . $api_key . '/sendMessage?' . http_build_query([ 'chat_id' => $chat_id, 'text' => $message ]));
             if ($response)
@@ -137,7 +137,7 @@
                 }
             }
             $message = check_parameter('message', $domain->message, [ '/^[\w\s():%]+$/i' ], true);
-            $json_data[$name] = $message ? array('when' => $now, 'message' => $message) : $now;
+            $json_data[$name] = $message ? array('when' => $now, 'whens' => date('d-m-Y H:i:s', $now), 'message' => $message) : $now;
             set_json_data($json_data);
         }
         else
