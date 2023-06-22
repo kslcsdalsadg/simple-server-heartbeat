@@ -136,7 +136,7 @@
                     send_message($domain->channels, sprintf('%s vuelve a estar conectada a Internet', $name));
                 }
             }
-            $message = check_parameter('message', $domain->message, [ '/^[\w\s():%]+$/i' ], true);
+            $message = check_parameter('message', $domain->message, [ '/^[\w\s():\.,%º]+$/i' ], true);
             $json_data[$name] = $message ? array('when' => $now, 'whens' => date('d-m-Y H:i:s', $now), 'message' => $message) : $now;
             set_json_data($json_data);
         }
