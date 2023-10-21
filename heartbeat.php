@@ -133,7 +133,12 @@
                 $when = is_array($json_data[$name]) ? $json_data[$name]['when'] : $json_data[$name];
                 if (intval($when) == 0)
                 {
-                    send_message($domain->channels, sprintf('%s vuelve a estar conectada a Internet', $name));
+                    $message = sprintf('%s vuelve a estar conectada a Internet', $name);
+                    if ($parameters->rebooted == '1')
+                    {
+                        $message = sprintf('Después del reinicio, %s', $message);
+                    }
+                    send_message($domain->channels, $message);
                 }
             }
             $message = check_parameter('message', $domain->message, [ '/^[\w\s():\.,%º]+$/i' ], true);
