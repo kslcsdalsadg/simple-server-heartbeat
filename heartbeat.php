@@ -1,20 +1,27 @@
 <?php
 
-    $GLOBALS['file_pathname'] = '.heartbeat.dat';
+    $GLOBALS['data_pathname'] = '.heartbeat.dat';
+    $GLOBALS['errors_pathname'] = '.heartbeat.err';
      
+    function set_errors_log_and_exit($message)
+    {
+        file_put_contents($GLOBALS['errors_pathname'], $message);
+        exit($message);
+    }
+
     function get_json_data() 
     {
-        if (file_exists($GLOBALS['file_pathname'])) 
+        if (file_exists($GLOBALS['data_pathname'])) 
         { 
             try
             {
-                if (filesize($GLOBALS['file_pathname']) == 0) 
+                if (filesize($GLOBALS['data_pathname']) == 0) 
                 {
-                    unlink($GLOBALS['file_pathname']);
+                    unlink($GLOBALS['data_pathname']);
                 }
                 else 
                 {
-                    return json_decode(file_get_contents($GLOBALS['file_pathname']), true); 
+                    return json_decode(file_get_contents($GLOBALS['data_pathname']), true); 
                 }
             }
             catch (Exception $e) 
@@ -26,10 +33,10 @@
     
     function set_json_data($json_data) 
     {
-        $temp_filename = sprintf('%s.%d', $GLOBALS['file_pathname'], getmypid());
+        $temp_filename = sprintf('%s.%d', $GLOBALS['data_pathname'], getmypid());
         if (file_put_contents($temp_filename, json_encode($json_data, JSON_PRETTY_PRINT))) 
         {
-            rename($temp_filename, $GLOBALS['file_pathname']);
+            rename($temp_filename, $GLOBALS['data_pathname']);
         }
     }
     
@@ -47,7 +54,7 @@
     {
         if ((! $value) && (! $allow_empty_value))
         {
-            exit(sprintf('El valor del parámetro "%s" no puede ser vacío', $name)); 
+            set_errors_log_and_exit(sprintf('El valor del parámetro "%s" no puede ser vacío', $name)); 
         }
         if (($value) && ($array_of_regexp != null))
         {
@@ -62,7 +69,7 @@
             }
             if (! $matches) 
             { 
-                exit(sprintf('El valor del parámetro "%s" es "%s", que no se acepta', $name, $value)); 
+                set_errors_log_and_exit(sprintf('El valor del parámetro "%s" es "%s", que no se acepta', $name, $value)); 
             }
         }
         return $value;
@@ -88,14 +95,14 @@
     {
         if (! is_array($channels))
         {
-            exit('El valor del paràmetro "channels" no se acepta');
+            set_errors_log_and_exit('El valor del paràmetro "channels" no se acepta');
         }
         $ok = false;
         foreach ($channels as $channel)
         {
             if (! is_object($channel))
             {
-                exit('El valor del parámetro "channel" no se acepta');
+                set_errors_log_and_exit('El valor del parámetro "channel" no se acepta');
             }
             $ok |= _send_message($channel, $message);
         }
@@ -106,23 +113,23 @@
     $parameters = parse_parameters();
     if (! is_object($parameters))
     {
-        exit('El valor de los paràmetros no se acepta (error ' . json_last_error() . ')');
+        set_errors_log_and_exit('El valor de los paràmetros no se acepta (error ' . json_last_error() . ')');
     }
     $method = $_SERVER['REQUEST_METHOD'];
     if (($method != 'POST') && ($method != 'PUT')) 
     { 
-        exit('El valor del parámetro "method" no se acepta'); 
+        set_errors_log_and_exit('El valor del parámetro "method" no se acepta'); 
     } 
     $domains = $parameters->domains;
     if (! is_array($domains)) 
     {
-        exit('El valor del paràmetro "domains" no se acepta');
+        set_errors_log_and_exit('El valor del paràmetro "domains" no se acepta');
     }
     foreach ($domains as $domain)
     {
         if (! is_object($domain))
         {
-            exit('El valor del parámetro "domain" no se acepta');
+            set_errors_log_and_exit('El valor del parámetro "domain" no se acepta');
         }
         $name = check_parameter('domain-name', $domain->name, [ '/^[a-z0-9:_\-\.]+$/i' ]);
         if ($method == 'PUT')
@@ -176,12 +183,11 @@
                 }
                 else
                 {
-                    exit("El mensaje no se pudo enviar");
+                    set_errors_log_and_exit("El mensaje no se pudo enviar");
                 }
             }
         }
     }
-    exit(0);
+    set_errors_log_and_exit(0);
     
 ?>
-
