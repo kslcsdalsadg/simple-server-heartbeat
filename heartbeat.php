@@ -5,7 +5,10 @@
      
     function set_errors_log_and_exit($message)
     {
-        file_put_contents($GLOBALS['errors_pathname'], $message);
+       if ($message != 0) 
+        { 
+            file_put_contents($GLOBALS['errors_pathname'], $message); 
+        }
         exit($message);
     }
 
